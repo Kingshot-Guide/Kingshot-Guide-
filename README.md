@@ -1,2 +1,2 @@
-# project-331-kingdom
-Kingshot Kingdom 331
+# Kingshot Guide
+Kingshot Guide 
