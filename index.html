@@ -887,10 +887,6 @@ input[type="number"]:focus,select:focus{border-color:var(--gold);box-shadow:0 0 
   <div class="sec-head" id="news-title"></div>
   <div id="news-content"></div>
 </div>
-<div class="section" id="sec-tools">
-  <div class="sec-head" id="tools-title"></div>
-  <div id="tools-content"></div>
-</div>
 <div class="section" id="sec-tipps"><div class="sec-head" id="tip-title"></div><div id="tip-content"></div></div>
 
 </div>
@@ -898,8 +894,8 @@ input[type="number"]:focus,select:focus{border-color:var(--gold);box-shadow:0 0 
 <script>
 var LANGS = {
 de:{
-  nav:['🏠 Start','👑 Kingdom #331','📖 Einsteiger','🦸 Helden','⚙️ Formation','🎯 Events','🛡️ Ausrüstung','🏰 Kapazität','📚 Akademie','🏛️ Myst. Prüfung','🏟️ Arena','🦁 Tiere','🎓 Meister','⚡ Booster','🌾 Ressourcen','🛠️ Tools','💡 Tipps','📰 News'],
-  navIds:['start','koenigreiche','einsteiger','helden','formation','events','ausruestung','kapazitaet','akademie','mystic','arena','pets','masters','booster','ressourcen','tools','tipps','news'],
+  nav:['🏠 Start','👑 Kingdom #331','📖 Einsteiger','🦸 Helden','⚙️ Formation','🎯 Events','🛡️ Ausrüstung','🏰 Kapazität','📚 Akademie','🏛️ Myst. Prüfung','🏟️ Arena','🦁 Tiere','🎓 Meister','⚡ Booster','🌾 Ressourcen','💡 Tipps','📰 News'],
+  navIds:['start','koenigreiche','einsteiger','helden','formation','events','ausruestung','kapazitaet','akademie','mystic','arena','pets','masters','booster','ressourcen','tipps','news'],
   searchPlaceholder:'Suchen...',curLang:'DE',
   hbTitle:'🔥 KÖNIGREICH 331',
   hbSub:'Die ultimative Kingshot-Wissensdatenbank – Guides, Tools & Strategien',
@@ -949,8 +945,8 @@ de:{
   kvkPrepBody:'<b>2 Wochen vor KvK sammeln:</b><br>• 🏃 Speedups (Bau + Forschung + Truppen)<br>• 🪖 Truppen-Training MAX<br>• 🌾 Ressourcen in Rucksack (Storehouse!)<br>• 💊 Hospital upgraden<br>• 🛡️ Schilde sammeln (24h & 8h)<br>• 💎 Diamanten sparen<br>• 🔨 Forgehammer NICHT ausgeben<br>• 📦 Medical Satchels & Rescue Orders<br><br><b style="color:var(--ember-lt)">⚠️ Nie kurz vor KvK große Forschungen starten!</b>',
 },
 en:{
-  nav:['🏠 Home','👑 Kingdom #331','📖 Beginner','🦸 Heroes','⚙️ Formation','🎯 Events','🛡️ Gear','🏰 Capacity','📚 Academy','🏛️ Mystic Trial','🏟️ Arena','🦁 Pets','🎓 Masters','⚡ Boosters','🌾 Resources','🛠️ Tools','💡 Tips','📰 News'],
-  navIds:['start','koenigreiche','einsteiger','helden','formation','events','ausruestung','kapazitaet','akademie','mystic','arena','pets','masters','booster','ressourcen','tools','tipps','news'],
+  nav:['🏠 Home','👑 Kingdom #331','📖 Beginner','🦸 Heroes','⚙️ Formation','🎯 Events','🛡️ Gear','🏰 Capacity','📚 Academy','🏛️ Mystic Trial','🏟️ Arena','🦁 Pets','🎓 Masters','⚡ Boosters','🌾 Resources','💡 Tips','📰 News'],
+  navIds:['start','koenigreiche','einsteiger','helden','formation','events','ausruestung','kapazitaet','akademie','mystic','arena','pets','masters','booster','ressourcen','tipps','news'],
   searchPlaceholder:'Search...',curLang:'EN',
   hbTitle:'🔥 KINGDOM 331',
   hbSub:'The ultimate Kingshot knowledge base – Guides, Tools & Strategies for all player types',
@@ -1619,135 +1615,7 @@ function buildNewsContent(){
 }
 
 
-// ═══════ ALLIANZ-TOOLS (Supabase Live-Sync) ═══════
-var SUPABASE_URL='https://kkldhvnzztbycqstaabg.supabase.co';
-var SUPABASE_KEY='sb_publishable_tIQV3NQm3EieEmker8T0bw_T_pN6iOp';
-var _toolsCache={bautag:[],power:[]};
-
-function toolsGetUser(){return localStorage.getItem('ks_user')||'';}
-function toolsSetUser(n){localStorage.setItem('ks_user',n);}
-
-function sbFetch(path,opts,cb){
-  var o=opts||{};
-  o.headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
-  fetch(SUPABASE_URL+'/rest/v1/'+path,o).then(function(r){
-    if(o.method==='POST'||o.method==='DELETE'||o.method==='PATCH'){cb&&cb(null);return null;}
-    return r.json();
-  }).then(function(d){if(d)cb&&cb(d);}).catch(function(e){
-    var tc=document.getElementById('tools-content');
-    if(tc&&tc.innerHTML.indexOf('Verbindungsfehler')===-1)tc.innerHTML='<div class="alert alert-warn">⚠️ Verbindungsfehler zu Supabase. Tabellen angelegt? Internet?</div>'+tc.innerHTML;
-  });
-}
-
-function toolsLoadAll(){
-  sbFetch('bautag?select=*&order=slot.asc',null,function(d){
-    _toolsCache.bautag=d||[];
-    sbFetch('power?select=*&order=name.asc',null,function(p){
-      _toolsCache.power=p||[];
-      renderTools();
-    });
-  });
-}
-
-function toolsLogin(){
-  var inp=document.getElementById('tool-name');
-  if(!inp||!inp.value.trim())return;
-  toolsSetUser(inp.value.trim());
-  buildTools();
-}
-function toolsLogout(){localStorage.removeItem('ks_user');buildTools();}
-
-function toolsAddBau(){
-  var slot=document.getElementById('bau-slot');
-  var geb=document.getElementById('bau-geb');
-  if(!slot||!geb||!geb.value.trim())return;
-  sbFetch('bautag',{method:'POST',body:JSON.stringify({name:toolsGetUser(),slot:slot.value,geb:geb.value.trim()})},function(){toolsLoadAll();});
-}
-function toolsDelBau(id){
-  sbFetch('bautag?id=eq.'+id,{method:'DELETE'},function(){toolsLoadAll();});
-}
-function toolsSavePower(){
-  var p=document.getElementById('tool-power');
-  var t=document.getElementById('tool-tc');
-  if(!p||!t)return;
-  var me=toolsGetUser();
-  sbFetch('power?name=eq.'+encodeURIComponent(me),{method:'DELETE'},function(){
-    sbFetch('power',{method:'POST',body:JSON.stringify({name:me,power:p.value,tc:t.value})},function(){toolsLoadAll();});
-  });
-}
-
-function buildTools(){
-  var user=toolsGetUser();
-  renderTools();
-  if(user){toolsLoadAll();}
-}
-function renderTools(){
-  var D=(LANG==='de');
-  var tt=document.getElementById('tools-title');
-  var tc=document.getElementById('tools-content');
-  if(tt)tt.textContent=D?'🛠️ Allianz-Tools – Koordination':'🛠️ Alliance Tools – Coordination';
-  if(!tc)return;
-  var user=toolsGetUser();
-  var h='';
-  h+='<div class="alert" style="border:1px solid rgba(90,155,106,0.4);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px">'
-    +'🟢 '+(D?'<b>Live-Modus:</b> Einträge werden allianz-weit geteilt!':'<b>Live mode:</b> Entries are shared alliance-wide!')
-    +'</div>';
-  if(!user){
-    h+='<div class="card card-highlight" style="border-color:rgba(201,168,76,0.5);max-width:400px;margin:0 auto">'
-      +'<div class="card-title">👤 '+(D?'Anmelden':'Login')+'</div>'
-      +'<p style="font-size:12px;margin-bottom:10px">'+(D?'Gib deinen Spielernamen ein:':'Enter your player name:')+'</p>'
-      +'<input type="text" id="tool-name" placeholder="'+(D?'Spielername':'Player name')+'" style="width:100%;padding:10px;background:rgba(0,0,0,0.4);border:1px solid var(--stone-5);border-radius:8px;color:var(--text);font-size:14px;margin-bottom:10px">'
-      +'<button class="tab-btn active" style="width:100%" onclick="toolsLogin()">'+(D?'Anmelden':'Login')+'</button>'
-      +'</div>';
-    tc.innerHTML=h;
-    return;
-  }
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
-    +'<div style="font-size:14px">👤 <b style="color:var(--gold)">'+user+'</b></div>'
-    +'<button class="tab-btn" onclick="toolsLogout()" style="font-size:11px">'+(D?'Abmelden':'Logout')+'</button>'
-    +'</div>';
-  h+='<div class="sub-head">🏗️ '+(D?'Bautag – Wer ist wann dran?':'Build Day – Who goes when?')+'</div>';
-  h+='<div class="card" style="margin-bottom:12px">'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
-    +'<select id="bau-slot" style="flex:1;min-width:110px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid var(--stone-5);border-radius:8px;color:var(--text)">'
-    +'<option>00-06 UTC</option><option>06-12 UTC</option><option>12-18 UTC</option><option>18-24 UTC</option>'
-    +'</select>'
-    +'<input type="text" id="bau-geb" placeholder="'+(D?'Gebäude (z.B. TC 28)':'Building (e.g. TC 28)')+'" style="flex:2;min-width:140px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid var(--stone-5);border-radius:8px;color:var(--text)">'
-    +'<button class="tab-btn active" onclick="toolsAddBau()" style="flex-shrink:0">＋ '+(D?'Eintragen':'Add')+'</button>'
-    +'</div></div>';
-  var bau=_toolsCache.bautag;
-  if(bau.length===0){
-    h+='<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">'+(D?'Noch keine Einträge.':'No entries yet.')+'</p>';
-  }else{
-    h+='<div class="table-wrap"><table><thead><tr><th>'+(D?'Zeitfenster':'Time Slot')+'</th><th>'+(D?'Spieler':'Player')+'</th><th>'+(D?'Gebäude':'Building')+'</th><th></th></tr></thead><tbody>';
-    for(var i=0;i<bau.length;i++){
-      h+='<tr><td style="color:var(--gold);font-weight:600">'+bau[i].slot+'</td>'
-        +'<td>'+bau[i].name+'</td><td style="font-size:12px">'+bau[i].geb+'</td>'
-        +'<td>'+(bau[i].name===user?'<button onclick="toolsDelBau('+bau[i].id+')" style="background:none;border:none;color:var(--ember-lt);cursor:pointer;font-size:14px">✕</button>':'')+'</td></tr>';
-    }
-    h+='</tbody></table></div>';
-  }
-  h+='<div class="sub-head" style="margin-top:18px">📊 '+(D?'Power-Tracker':'Power Tracker')+'</div>';
-  var power=_toolsCache.power;
-  var myEntry=null;
-  for(var i=0;i<power.length;i++){if(power[i].name===user)myEntry=power[i];}
-  h+='<div class="card" style="margin-bottom:12px">'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
-    +'<input type="text" id="tool-power" placeholder="'+(D?'Power (z.B. 45M)':'Power (e.g. 45M)')+'" value="'+(myEntry?myEntry.power:'')+'" style="flex:1;min-width:100px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid var(--stone-5);border-radius:8px;color:var(--text)">'
-    +'<input type="text" id="tool-tc" placeholder="TC Level" value="'+(myEntry?myEntry.tc:'')+'" style="flex:1;min-width:80px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid var(--stone-5);border-radius:8px;color:var(--text)">'
-    +'<button class="tab-btn active" onclick="toolsSavePower()" style="flex-shrink:0">💾 '+(D?'Speichern':'Save')+'</button>'
-    +'</div></div>';
-  if(power.length>0){
-    h+='<div class="table-wrap"><table><thead><tr><th>'+(D?'Spieler':'Player')+'</th><th>Power</th><th>TC</th></tr></thead><tbody>';
-    for(var i=0;i<power.length;i++){
-      h+='<tr'+(power[i].name===user?' style="background:rgba(201,168,76,0.08)"':'')+'><td>'+power[i].name+'</td><td style="color:var(--gold)">'+power[i].power+'</td><td>'+power[i].tc+'</td></tr>';
-    }
-    h+='</tbody></table></div>';
-  }
-  tc.innerHTML=h;
-}
-
-function buildAll(){buildNav();buildTools();buildKvkCountdown();buildGipfelCountdown();buildFormationStatic();buildNewsContent();buildStart();buildHelden();buildEvents();buildGear();buildCapacity();buildAkademie();buildMystic();buildPets();buildMasters();buildBooster();buildRessourcen();buildTipps();buildArena();buildEinsteiger();buildKoenigreiche();updateSidebar();}
+function buildAll(){buildNav();buildKvkCountdown();buildGipfelCountdown();buildFormationStatic();buildNewsContent();buildStart();buildHelden();buildEvents();buildGear();buildCapacity();buildAkademie();buildMystic();buildPets();buildMasters();buildBooster();buildRessourcen();buildTipps();buildArena();buildEinsteiger();buildKoenigreiche();updateSidebar();}
 
 function buildNav(){
   var navArr=t('nav');
