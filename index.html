@@ -1484,12 +1484,13 @@ function buildGipfelCountdown(){
 
 
 function buildFormationStatic(){
-  var D=(LANG==='de');
+var D=(LANG==='de');
   var ft=document.getElementById('form-title');
   var fc=document.getElementById('form-content');
   if(ft) ft.textContent=D?'⚙️ Formation & Strategie':'⚙️ Formation & Strategy';
   if(!fc) return;
-  fc.innerHTML=''
+  var tabsHtml='<div class="tab-nav" id="form-tabs">'+'<button class="tab-btn active" onclick="showFormTab(0)">'+(D?'📋 Übersicht':'📋 Overview')+'</button>'+'<button class="tab-btn" onclick="showFormTab(1)">⚔️ KvK</button>'+'</div>';
+  var t0=''
     +'<div class="alert" style="background:linear-gradient(135deg,rgba(201,168,76,0.12),rgba(10,8,4,0.95));border:1px solid rgba(201,168,76,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px">'
     +(D?'📋 Jede Aktivität braucht eine <b>andere Formation</b>! Hier findest du die richtige für jede Situation.':'📋 Every activity needs a <b>different formation</b>! Find the right one for every situation here.')
     +'</div>'
@@ -1551,9 +1552,34 @@ function buildFormationStatic(){
       +'<div style="font-size:24px;font-weight:700;text-align:center;margin:8px 0;color:var(--gold)">50% / 20% / 30%</div>'
       +'<p style="font-size:11px;color:var(--text-dim);text-align:center">'+(D?'META Formation – kannst du dich verteidigen wenn angegriffen':'META Formation – can defend if attacked')+'</p></div>'
     +'</div>';
+  var t1=''
+    +'<div class="sub-head">⚔️ '+(D?'Die 4 Meta-Formationen (KvK)':'The 4 Meta Formations (KvK)')+'</div>'
+    +'<div class="grid-2">'
+      +'<div class="card card-highlight" style="border-color:rgba(200,48,48,0.5)">'
+        +'<div class="card-title" style="color:var(--ember-lt)">1️⃣ 50-20-30 · Trition–Thrud–Yang</div>'
+        +'<p style="font-size:11px;color:var(--gold);margin-bottom:6px">'+(D?'Joiner: Vivian, Chenko, Amane & Triton':'Joiners: Vivian, Chenko, Amane & Triton')+'</p>'
+        +'<p style="font-size:12px">'+(D?'<b style="color:var(--ember-lt)">Offensiv-Formation.</b> Der Klassiker – funktioniert in jeder Meta-Version. Besonders stark gegen Garrisons mit Archern.':'<b style="color:var(--ember-lt)">Offensive formation.</b> The classic – works in every version of the meta. Especially powerful against any garrison with archers in it.')+'</p>'
+      +'</div>'
+      +'<div class="card card-highlight" style="border-color:rgba(200,48,48,0.5)">'
+        +'<div class="card-title" style="color:var(--ember-lt)">2️⃣ 48-02-50 · Trition–Petra–Yang</div>'
+        +'<p style="font-size:11px;color:var(--gold);margin-bottom:6px">'+(D?'Joiner: Thrud, Vivian, Chenko, Amane':'Joiners: Thrud, Vivian, Chenko, Amane')+'</p>'
+        +'<p style="font-size:12px">'+(D?'<b style="color:var(--ember-lt)">Offensiv-Formation.</b> Der "640-Killer" – zielt gezielt auf gegnerische Infanterie. Kleiner Kavallerie-Anteil damit Yangs rundenbasierte Skills korrekt auslösen.':'<b style="color:var(--ember-lt)">Offensive formation.</b> The "640 killer" – specifically targets the enemy infantry. Small amount of cavalry so Yang\'s turn-based skills work correctly.')+'</p>'
+      +'</div>'
+      +'<div class="card card-highlight" style="border-color:rgba(74,138,186,0.5)">'
+        +'<div class="card-title" style="color:var(--blue-lt)">3️⃣ 60-40-0 · Trition–Sophia–Jäger</div>'
+        +'<p style="font-size:11px;color:var(--gold);margin-bottom:6px">'+(D?'Joiner: Trition, Pizza man, Hilde, Chenko':'Joiners: Trition, Pizza man, Hilde, Chenko')+'</p>'
+        +'<p style="font-size:12px">'+(D?'<b style="color:var(--blue-lt)">Defensiv-Formation.</b> Bleibt Meta solange es keine neuen Angriffs-Widget-Infanterie-Helden gibt. Braucht oft 2–3 Rallys zum Brechen!':'<b style="color:var(--blue-lt)">Defensive formation.</b> Will remain meta while there is no new attacking widget infantry hero. Often requires 2 or 3 rallies to break!')+'</p>'
+      +'</div>'
+      +'<div class="card card-highlight" style="border-color:rgba(74,138,186,0.5)">'
+        +'<div class="card-title" style="color:var(--blue-lt)">4️⃣ 60-40-0 · Trition–Thrud–Vivian</div>'
+        +'<p style="font-size:11px;color:var(--gold);margin-bottom:6px">'+(D?'Joiner: Trition, Pizza man, Hilde, Chenko':'Joiners: Trition, Pizza man, Hilde, Chenko')+'</p>'
+        +'<p style="font-size:12px">'+(D?'<b style="color:var(--blue-lt)">Defensiv-Formation.</b> Die Old-School Garrison – nützlich wenn Gegner 640-Killer-Formationen wie 505 oder unsere Formation 2 nutzen.':'<b style="color:var(--blue-lt)">Defensive formation.</b> The old school garrison – useful when opponents use 640 killer formations like 505 or our Formation 2.')+'</p>'
+      +'</div>'
+    +'</div>'
+
+    ;
+  fc.innerHTML=tabsHtml+'<div id="form-tab-content">'+'<div class="tab-content active" id="formtab-0">'+t0+'</div>'+'<div class="tab-content" id="formtab-1">'+t1+'</div>'+'</div>';
 }
-
-
 function buildNewsContent(){
   var D=(LANG==='de');
   var nt=document.getElementById('news-title');
@@ -1910,6 +1936,10 @@ function buildEvents(){
 
 
 
+function showFormTab(i){
+  document.querySelectorAll('#form-tabs .tab-btn').forEach(function(b,j){b.classList.toggle('active',i===j);});
+  document.querySelectorAll('#form-tab-content .tab-content').forEach(function(c,j){c.classList.toggle('active',i===j);c.style.display=(i===j)?'block':'none';});
+}
 function showChampTab(i){
   document.querySelectorAll('#champ-tabs .tab-btn').forEach(function(b,j){b.classList.toggle('active',i===j);});
   document.querySelectorAll('#champ-tab-content .tab-content').forEach(function(c,j){c.classList.toggle('active',i===j);c.style.display=(i===j)?'block':'none';});
